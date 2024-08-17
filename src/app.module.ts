@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerService } from './@core/logger/logger.service';
 import { UserModule } from './user/user.module';
 import { AlbumModule } from './album/album.module';
+import { UserActionModule } from './user-action/user-action.module';
 
 @Global()
 @Module({
@@ -28,6 +29,7 @@ import { AlbumModule } from './album/album.module';
     AuthModule,
     UserModule,
     AlbumModule,
+    UserActionModule,
   ],
   controllers: [],
   providers: [

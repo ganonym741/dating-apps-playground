@@ -9,7 +9,4 @@ module.exports = {
       .map((filename) => `${filename}`)
       .join(' ')}`,
   ],
-  '**/*.(css|scss)': (filenames) => [
-    `npx stylelint ${filenames.join(' ')} --fix`,
-  ],
 };

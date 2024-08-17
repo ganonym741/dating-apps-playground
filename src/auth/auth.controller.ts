@@ -20,7 +20,8 @@ import { SwaggerMetaResponse } from '@core/type/global.type';
 import { JwtAuthGuard } from '@core/guards';
 import { MapResponseSwagger } from '@core/utils/helper';
 
-import type { AuthService } from '@/auth/auth.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { AuthService } from '@/auth/auth.service';
 import type { LoginDto } from '@/auth/dto/auth.dto';
 import { LoginResponseDto, TokenDto } from '@/auth/dto/auth.dto';
 

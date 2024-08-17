@@ -19,13 +19,14 @@ import {
 } from '@nestjs/swagger';
 import { HttpStatusCode } from 'axios';
 
-import type { AlbumService } from './album.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { AlbumService } from './album.service';
 import type { CreateAlbumDto } from './dto/create-album.dto';
 import type { UpdateAlbumDto } from './dto/update-album.dto';
-import { JwtAuthGuard } from '@/@core/guards';
-import { AlbumEntity } from '@/@model/album.entity';
-import { SwaggerMetaResponse } from '@/@core/type/global.type';
-import { MapResponseSwagger } from '@/@core/utils/helper';
+import { JwtAuthGuard } from '@core/guards';
+import { AlbumEntity } from '@model/album.entity';
+import { SwaggerMetaResponse } from '@core/type/global.type';
+import { MapResponseSwagger } from '@core/utils/helper';
 
 @ApiTags('Album Api')
 @ApiBearerAuth()

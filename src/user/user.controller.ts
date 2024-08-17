@@ -29,8 +29,6 @@ import { UserEntity } from '@model/user.entity';
 import { SwaggerMetaResponse } from '@/@core/type/global.type';
 
 @ApiTags('User Api')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -56,6 +54,8 @@ export class UserController {
 
   @ApiOperation({ summary: 'Find many user' })
   @MapResponseSwagger(UserEntity, { status: 200, isArray: true })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(
     @Request() req,
@@ -73,6 +73,8 @@ export class UserController {
 
   @ApiOperation({ summary: 'Get user profile' })
   @MapResponseSwagger(UserEntity, { status: 200, isArray: false })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('/profile')
   async findOne(@Request() req, @Response() res) {
     try {
@@ -89,6 +91,8 @@ export class UserController {
     status: 200,
     type: SwaggerMetaResponse,
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Put()
   async update(
     @Request() req,
@@ -112,6 +116,8 @@ export class UserController {
     status: 200,
     type: SwaggerMetaResponse,
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Delete()
   async remove(@Request() req, @Response() res) {
     try {
