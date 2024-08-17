@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import type { MEMBERSHIP } from '@/@model/user.entity';
+
 export class Meta {
   @ApiProperty({ example: 10 })
   pageSize: number;
@@ -38,8 +40,15 @@ export interface StatusDataMetaRes<T>
     DataWithStatusRes<T> {}
 
 export interface UserTokenRaw {
-  id_user?: number;
-  username?: string;
+  id?: string;
+  membership?: MEMBERSHIP;
   iat?: number;
   exp?: number;
+}
+
+export interface UserSession {
+  id?: string;
+  membership?: MEMBERSHIP;
+  login_at?: Date;
+  iat?: number;
 }

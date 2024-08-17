@@ -1,3 +1,4 @@
+import type { CacheStore } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { ExecutionContext } from '@nestjs/common';
 import {
@@ -7,16 +8,16 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import type { Cache } from 'cache-manager';
 import { TokenExpiredError } from 'jsonwebtoken';
 import * as jwt from 'jsonwebtoken';
 import { ExtractJwt } from 'passport-jwt';
 
-import { JWT_CACHE_TTL, USER_SESSION_PREFIX } from '@core/utils/const';
+import { USER_SESSION_TTL, USER_SESSION_PREFIX } from '@core/utils/const';
+import type { UserSession } from '@core/type/global.type';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(@Inject(CACHE_MANAGER) private readonly cacheService: Cache) {
+  constructor(@Inject(CACHE_MANAGER) private cacheService: CacheStore) {
     super();
   }
 
@@ -40,8 +41,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
       const decoded = jwt.decode(accessToken);
 
-      const userSession = await this.cacheService.get(
-        `${USER_SESSION_PREFIX}${decoded['id_user']}`
+      const userSession: UserSession = await this.cacheService.get(
+        `${USER_SESSION_PREFIX}${decoded['id']}`
       );
 
       if (!userSession || decoded['iat'] != userSession['iat']) {
@@ -56,13 +57,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         throw new ForbiddenException('Session expired!');
       }
 
-      request.user = decoded;
+      request.user = userSession;
 
-      // Update expiration iat on redis
-      this.cacheService.set(
-        `${USER_SESSION_PREFIX}${decoded['id_user']}`,
+      // Update expiration on redis
+      this.cacheService.set<UserSession>(
+        `${USER_SESSION_PREFIX}${decoded['id']}`,
         userSession,
-        JWT_CACHE_TTL
+        USER_SESSION_TTL
       );
 
       return true;

@@ -1,29 +1,82 @@
 import type { CacheStore } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { JwtService } from '@nestjs/jwt';
 
 import * as jwt from 'jsonwebtoken';
 
-import { JWT_CACHE_TTL, USER_SESSION_PREFIX } from '@core/utils/const';
-import type { DataWithStatusRes, UserTokenRaw } from '@core/type/global.type';
+import { InjectRepository } from '@nestjs/typeorm';
 
-import type { LoginDto, LoginResponseDto, TokenDto } from './dto/auth.dto';
+import type { Repository } from 'typeorm';
+
+import { USER_SESSION_TTL, USER_SESSION_PREFIX } from '@core/utils/const';
+import type {
+  DataWithStatusRes,
+  UserSession,
+  UserTokenRaw,
+} from '@core/type/global.type';
+
+import type { LoginDto, TokenDto } from './dto/auth.dto';
+import { LoginResponseDto } from './dto/auth.dto';
+import { CryptService } from '@/@core/utils/encryption';
+import { UserEntity } from '@/@model/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    @Inject(CACHE_MANAGER) private cacheService: CacheStore
+    @Inject(CACHE_MANAGER) private cacheService: CacheStore,
+    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
   ) {}
 
   async login(payload: LoginDto): Promise<LoginResponseDto> {
-    return {} as unknown as LoginResponseDto;
+    const { username, password } = payload;
+    const passwordEncrypt = CryptService.encrypt(password);
+
+    // Verify user credentials
+    const userData = await this.userRepo.findOneBy({
+      username: username,
+      password: passwordEncrypt,
+    });
+
+    if (!userData) {
+      throw new UnauthorizedException('Email atau password tidak valid');
+    }
+
+    // Generate user token
+    const token = await this.createToken({
+      id: userData.id,
+      membership: userData.membership,
+    });
+
+    // Save login session to redis
+    const decoded = jwt.decode(token);
+
+    this.cacheService.set<UserSession>(
+      `${USER_SESSION_PREFIX}${userData.id}`,
+      {
+        id: userData.id,
+        membership: userData.membership,
+        login_at: new Date(),
+        iat: decoded['iat'],
+      },
+      {
+        ttl: USER_SESSION_TTL,
+      }
+    );
+
+    return {
+      jwt: {
+        token: token,
+        token_expired: USER_SESSION_TTL,
+      },
+      ...Object.assign(LoginResponseDto, userData),
+    };
   }
 
-  async logout(user: UserTokenRaw): Promise<DataWithStatusRes<object>> {
+  async logout(user: UserSession): Promise<DataWithStatusRes<object>> {
     // Delete user session
-    await this.cacheService.del(`${USER_SESSION_PREFIX}${user.id_user}`);
+    await this.cacheService.del(`${USER_SESSION_PREFIX}${user.id}`);
 
     return {
       status_description: 'Logout berhasil!',
@@ -31,32 +84,32 @@ export class AuthService {
     };
   }
 
-  async refreshToken(user: UserTokenRaw): Promise<TokenDto> {
+  async refreshToken(user: UserSession): Promise<TokenDto> {
     // Generate new user token
     const token = await this.createToken({
-      id_user: user.id_user,
-      username: user.username,
+      id: user.id,
+      membership: user.membership,
     });
 
     // Save login session to redis
     const decoded = jwt.decode(token);
 
-    this.cacheService.set(
-      `${USER_SESSION_PREFIX}${user.id_user}`,
-      { iat: decoded['iat'] },
-      { ttl: JWT_CACHE_TTL }
+    this.cacheService.set<UserSession>(
+      `${USER_SESSION_PREFIX}${user.id}`,
+      { ...user, iat: decoded['iat'] },
+      { ttl: USER_SESSION_TTL }
     );
 
     return {
       token: token,
-      token_expired: +process.env.TOKEN_EXPIRATION,
+      token_expired: +process.env.JWT_MAX_AGE,
     };
   }
 
-  async createToken(payload: any): Promise<string> {
+  async createToken(payload: UserTokenRaw): Promise<string> {
     return await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_KEY,
-      expiresIn: +process.env.TOKEN_EXPIRATION,
+      secret: process.env.JWT_SECRET_SALT,
+      expiresIn: +process.env.JWT_MAX_AGE,
     });
   }
 }

@@ -35,7 +35,7 @@ export class LoginResponseDto {
   @ApiProperty({ example: 'address' })
   address: string;
 
-  @ApiProperty({ example: 'M' })
+  @ApiProperty({ example: 'photo address' })
   photo: string;
 
   @ApiProperty({ example: 'Deskripsi profile' })
