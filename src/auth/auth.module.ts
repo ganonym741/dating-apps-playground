@@ -13,8 +13,8 @@ import { USER_SESSION_TTL } from '@/@core/utils/const';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
     PassportModule,
+    TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({
       secret: process.env.JWT_KEY,
       signOptions: { expiresIn: USER_SESSION_TTL },

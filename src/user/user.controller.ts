@@ -18,7 +18,8 @@ import {
 } from '@nestjs/swagger';
 import { HttpStatusCode } from 'axios';
 
-import type { UserService } from './user.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { UserService } from './user.service';
 import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@core/guards';
@@ -64,7 +65,7 @@ export class UserController {
     try {
       const data = await this.userService.findAll(query, req.user);
 
-      return res.status(HttpStatusCode.Created).json(data);
+      return res.status(HttpStatusCode.Ok).json(data);
     } catch (err) {
       throw err;
     }
@@ -77,7 +78,7 @@ export class UserController {
     try {
       const data = await this.userService.findOne(req.user);
 
-      return res.status(HttpStatusCode.Created).json(data);
+      return res.status(HttpStatusCode.Ok).json(data);
     } catch (err) {
       throw err;
     }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import type { GENDER } from '@/@model/user.entity';
+import type { GENDER } from '@model/user.entity';
 
 export class GetManyUserDto {
   @ApiProperty({ example: 'Male | Female' })

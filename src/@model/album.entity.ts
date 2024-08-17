@@ -52,7 +52,7 @@ export class AlbumEntity {
   descriptions: string;
 
   @ApiProperty({ example: 'Total like' })
-  @Column({ type: 'int', default: 0 })
+  @Column({ nullable: true, type: 'int', default: 0 })
   like: number;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

@@ -27,9 +27,9 @@ class ConfigService {
   }
 
   public isProduction() {
-    const mode = this.getValue('MODE', false);
+    const mode = this.getValue('NODE_ENV', false);
 
-    return mode != 'DEV';
+    return mode != 'development';
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
@@ -71,4 +71,5 @@ export const configService = new ConfigService(process.env).ensureValues([
   'JWTR_SECRET',
   'DECRYPT_SECRET_KEY',
   'DECRYPT_IV',
+  'NODE_ENV'
 ]);

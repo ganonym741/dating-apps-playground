@@ -4,7 +4,6 @@ import { CACHE_MANAGER, CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
 import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { configService } from '@core/config';
@@ -14,6 +13,7 @@ import { ResponseMiddleware } from '@core/middleware';
 import { AuthModule } from './auth/auth.module';
 import { LoggerService } from './@core/logger/logger.service';
 import { UserModule } from './user/user.module';
+import { AlbumModule } from './album/album.module';
 
 @Global()
 @Module({
@@ -27,6 +27,7 @@ import { UserModule } from './user/user.module';
     }),
     AuthModule,
     UserModule,
+    AlbumModule,
   ],
   controllers: [],
   providers: [

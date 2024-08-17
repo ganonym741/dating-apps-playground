@@ -13,6 +13,14 @@ export class LoginDto {
   password: string;
 }
 
+export class TokenDto {
+  @ApiProperty({ example: 'base64 token' })
+  token: string;
+
+  @ApiProperty({ example: '124000' })
+  token_expired: number;
+}
+
 export class LoginResponseDto {
   @ApiProperty()
   jwt: TokenDto;
@@ -45,10 +53,3 @@ export class LoginResponseDto {
   phone_number: string;
 }
 
-export class TokenDto {
-  @ApiProperty({ example: 'base64 token' })
-  token: string;
-
-  @ApiProperty({ example: '124000' })
-  token_expired: number;
-}

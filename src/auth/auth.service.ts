@@ -1,12 +1,10 @@
 import type { CacheStore } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { JwtService } from '@nestjs/jwt';
-
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
-
 import { InjectRepository } from '@nestjs/typeorm';
-
 import type { Repository } from 'typeorm';
 
 import { USER_SESSION_TTL, USER_SESSION_PREFIX } from '@core/utils/const';
@@ -18,15 +16,15 @@ import type {
 
 import type { LoginDto, TokenDto } from './dto/auth.dto';
 import { LoginResponseDto } from './dto/auth.dto';
-import { CryptService } from '@/@core/utils/encryption';
-import { UserEntity } from '@/@model/user.entity';
+import { CryptService } from '@core/utils/encryption';
+import { UserEntity } from '@model/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheService: CacheStore,
-    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
+    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async login(payload: LoginDto): Promise<LoginResponseDto> {
