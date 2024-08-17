@@ -1,4 +1,5 @@
-import { GENDER, MEMBERSHIP, UserEntity } from '@/@model/user.entity';
+import type { UserEntity } from '@model/user.entity';
+import { GENDER, MEMBERSHIP } from '@model/user.entity';
 
 export const UserSeed: Partial<UserEntity>[] = [
     {

@@ -1,7 +1,7 @@
 import type { OnApplicationBootstrap } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 
-import type { Seeder } from './seeds/seeds.service';
+import type { Seeder } from '@core/seeds/seeds.service';
 
 @Controller()
 export class AppController implements OnApplicationBootstrap {

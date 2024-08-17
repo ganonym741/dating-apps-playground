@@ -50,8 +50,6 @@ export class UserEntity extends DefaultEntity {
 
   @ApiProperty({ example: 'Password' })
   @Column({ select: false })
-
-  // @Exclude({ toPlainOnly: true })
   password: string;
 
   @ApiProperty({ example: '12-07-1990' })
@@ -65,6 +63,14 @@ export class UserEntity extends DefaultEntity {
   @ApiProperty({ example: 'address' })
   @Column()
   address: string;
+
+  @ApiProperty({ example: 'city' })
+  @Column()
+  city: string;
+
+  @ApiProperty({ example: 'province' })
+  @Column()
+  province: string;
 
   @ApiProperty({ example: 'M' })
   @Column()

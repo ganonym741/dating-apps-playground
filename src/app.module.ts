@@ -13,6 +13,7 @@ import { ResponseInterceptor } from '@core/interceptors/response.interceptor';
 import { ResponseMiddleware } from '@core/middleware';
 import { AuthModule } from './auth/auth.module';
 import { LoggerService } from './@core/logger/logger.service';
+import { UserModule } from './user/user.module';
 
 @Global()
 @Module({
@@ -25,6 +26,7 @@ import { LoggerService } from './@core/logger/logger.service';
       ...configService.getRedisConfig(),
     }),
     AuthModule,
+    UserModule,
   ],
   controllers: [],
   providers: [
