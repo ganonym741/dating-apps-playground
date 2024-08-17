@@ -7,5 +7,6 @@ export class CreateAlbumDto extends OmitType(AlbumEntity, [
   'created_at',
   'deleted_at',
   'updated_at',
-  'like'
+  'like',
+  'user_id',
 ]) {}

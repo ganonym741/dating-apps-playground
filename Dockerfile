@@ -1,23 +1,12 @@
 FROM node:20-alpine3.18 AS builder
 
-# Create app directory
 WORKDIR /app
+COPY package*.json ./
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-COPY package.json yarn.lock ./
-
-# Install app dependencies
 RUN npm install
-
 COPY . .
-RUN npm run migration:generate && npm run migration:run
+
 RUN npm run build
 
-FROM node:20-alpine3.18
-
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 3000
-CMD [ "npm", "run", "start:prod" ]
+EXPOSE 3011
+CMD npm run migration:generate && npm run migration:run && npm run start:prod

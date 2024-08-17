@@ -39,14 +39,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       }
 
       const decoded = jwt.decode(accessToken);
-
       const userSession: UserSession = JSON.parse(
         await this.cacheService.getValue(
           `${USER_SESSION_PREFIX}${decoded['id']}`
         )
       );
 
-      if (!userSession) {
+      if (!userSession || decoded['iat'] != userSession['iat']) {
         throw new UnauthorizedException('Token invalid, please relogin.');
       }
 
@@ -61,7 +60,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       request.user = userSession;
 
       // Update expiration on redis
-      this.cacheService.save(
+      await this.cacheService.save(
         `${USER_SESSION_PREFIX}${decoded['id']}`,
         JSON.stringify(userSession),
         USER_SESSION_TTL

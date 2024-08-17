@@ -41,9 +41,13 @@ export class AlbumController {
     type: SwaggerMetaResponse,
   })
   @Post()
-  async create(@Body() createAlbumDto: CreateAlbumDto, @Response() res) {
+  async create(
+    @Request() req,
+    @Body() createAlbumDto: CreateAlbumDto,
+    @Response() res
+  ) {
     try {
-      const data = await this.albumService.create(createAlbumDto);
+      const data = await this.albumService.create(createAlbumDto, req.user);
 
       return res.status(HttpStatusCode.Created).json(data);
     } catch (err) {

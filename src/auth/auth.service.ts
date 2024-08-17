@@ -36,6 +36,7 @@ export class AuthService {
         'name',
         'password',
         'birth_date',
+        'membership',
         'city',
         'email',
         'photo',
@@ -66,7 +67,7 @@ export class AuthService {
     // Save login session to redis
     const decoded = jwt.decode(token);
 
-    const cache = await this.cacheService.save(
+    await this.cacheService.save(
       `${USER_SESSION_PREFIX}${userData.id}`,
       JSON.stringify({
         id: userData.id,
@@ -77,8 +78,6 @@ export class AuthService {
       USER_SESSION_TTL
     );
 
-    console.log(cache);
-
     const data = userData;
 
     delete data.password;
@@ -87,7 +86,7 @@ export class AuthService {
     return {
       jwt: {
         token: token,
-        token_expired: +process.env.JWT_MAX_AGE,
+        token_expired: new Date(decoded['exp'] * 1000),
       },
       ...data,
     };
@@ -121,7 +120,7 @@ export class AuthService {
 
     return {
       token: token,
-      token_expired: +process.env.JWT_MAX_AGE,
+      token_expired: new Date(decoded['exp'] * 1000),
     };
   }
 

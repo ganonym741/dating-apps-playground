@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 
@@ -27,31 +31,26 @@ export class UserActionService {
   ) {}
 
   async likeUser(req: UserSession, userId: string) {
-    let response = '';
+    let response = 'Sukses membatalkan menyukai user';
 
     const existingUser = await this.userLikeRepo.findOne({
       where: {
         user_id: userId,
         liked_by_id: req.id,
       },
+      withDeleted: true,
     });
+
+    if (existingUser.deleted_at) {
+      response = 'Sukses menyukai user';
+    }
 
     if (existingUser) {
       // If found, update the existing user
       await this.userLikeRepo.update(existingUser.id, {
         ...(existingUser.deleted_at
-          ? () => {
-              response = 'Sukses menyukai user-like';
-
-              return { created_at: new Date(), deleted_at: null };
-            }
-          : () => {
-              response = 'Sukses membatalkan menyukai user-like';
-
-              return {
-                deleted_at: new Date(),
-              };
-            }),
+          ? { created_at: new Date(), deleted_at: null }
+          : { deleted_at: new Date() }),
       });
     } else {
       // If not found, insert a new user
@@ -59,54 +58,60 @@ export class UserActionService {
         user_id: userId,
         liked_by_id: req.id,
       });
-      response = 'Sukses menyukai user';
     }
 
     return response;
   }
 
   async viewUser(req: UserSession, userId: string) {
+    const except = (
+      await this.cacheService.getKeys(VIEW_SESSION_PREFIX + '*:' + req.id)
+    ).map((item) => item.split(':').at(1));
+
+    console.log(except);
+    if (except.includes(userId))
+      throw new BadRequestException('User ini sudah anda lihat sebelumnya');
+    if (req.id === userId)
+      throw new BadRequestException('User ini tidak valid');
+
     await this.userViewRepo.save({
       user_id: userId,
       viewed_by_id: req.id,
       created_at: new Date(),
     });
 
-    this.cacheService.save(
+    await this.cacheService.save(
       `${VIEW_SESSION_PREFIX}${userId}:${req.id}`,
-      '',
+      '-',
       VIEW_SESSION_TTL
     );
 
-    return 'This action adds a new userAction';
+    return 'User viewed';
   }
 
   async likeAlbum(req: UserSession, albumId: string) {
-    let response = '';
+    let response = 'Sukses membatalkan menyukai album';
 
     const existingAlbum = await this.albumLikeRepo.findOne({
       where: {
         album_id: albumId,
         liked_by_id: req.id,
       },
+      withDeleted: true,
     });
 
+    if (existingAlbum.deleted_at) {
+      response = 'Sukses menyukai album';
+    }
+
     if (existingAlbum) {
-      // If found, update the existing album-like
+      await this.albumRepo.update(albumId, {
+        like: () => `like ${existingAlbum.deleted_at ? '+ 1' : '- 1'}`,
+      });
       await this.albumLikeRepo.update(existingAlbum.id, {
         ...(existingAlbum.deleted_at
-          ? () => {
-              response = 'Sukses menyukai album';
-
-              return { created_at: new Date(), deleted_at: null };
-            }
-          : () => {
-              response = 'Sukses membatalkan menyukai album';
-
-              return {
-                deleted_at: new Date(),
-              };
-            }),
+          ? { created_at: new Date(), deleted_at: null }
+          : { deleted_at: new Date() }),
       });
     } else {
       // If not found, insert a new album-like
@@ -114,7 +119,6 @@ export class UserActionService {
         album_id: albumId,
         liked_by_id: req.id,
       });
-      response = 'Sukses menyukai album';
     }
 
     return response;

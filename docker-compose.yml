@@ -4,32 +4,22 @@ x-api-common:
   &api-common
   environment:
     &api-common-env
-    # API
     TZ: Asia/Jakarta
     NODE: development
     PORT: 3010
-
-    # JWT
     JWT_SECRET_SALT: 0xd9a74074D0a8f4bF5aeA4aB4E1Ab87efbeafBDed
-    JWT_MAX_AGE: 86000
-    
-    # ONSEC
+    JWT_MAX_AGE: 900
     DECRYPT_SECRET_KEY: 0123456789abcdef0123456789abcdef
     DECRYPT_IV: abcdef9876543210abcdef9876543210
     JWTR_SECRET: JKeqoi*&sa
-
-    # REDIS
-    REDIS_HOST: localhost
+    REDIS_HOST: cache-redis
     REDIS_PORT: 6379
-
-    # DB POSTGRES
-    POSTGRES_HOST: localhost
+    POSTGRES_HOST: api-database
     POSTGRES_PORT: 5432
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: pass123
-    POSTGRES_DATABASE: db_myebenefit
+    POSTGRES_DATABASE: postgres
     RUN_MIGRATIONS: false
-
 
 services:
   api-service:
@@ -39,27 +29,37 @@ services:
       dockerfile: Dockerfile
     restart: on-failure
     ports:
-      - '${PORT}:${PORT}'
+      - '3011:3011'
     environment:
       <<: *api-common-env
     depends_on:
-      - postgres
-      - redis
+      api-database:
+        condition: service_healthy
+      cache-redis:
+        condition: service_healthy
 
-  postgres:
-    container_name: api-db
+  api-database:
+    container_name: api-database
     image: postgres:13
     ports:
-      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+      - '5432:5432'
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DATABASE}
+      <<: *api-common-env
     restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  redis:
-    container_name: api-redis
+  cache-redis:
+    container_name: cache-redis
     image: redis:7.2-bookworm
     ports:
-      - '${REDIS_PORT}:${REDIS_PORT}'
+      - '6379:6379'
     restart: on-failure
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5

@@ -5,5 +5,5 @@ WORKDIR /app
 # COPY package*.json ./
 
 #Expose Port
-EXPOSE 3002
+EXPOSE 3011
 CMD [ "npm", "run", "start:dev" ]

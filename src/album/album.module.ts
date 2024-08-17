@@ -4,12 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AlbumService } from './album.service';
 import { AlbumController } from './album.controller';
 import { AlbumEntity } from '@model/album.entity';
+import { RedisCacheService } from '@core/service/cache.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([AlbumEntity]),
-  ],
+  imports: [TypeOrmModule.forFeature([AlbumEntity])],
   controllers: [AlbumController],
-  providers: [AlbumService],
+  providers: [AlbumService, RedisCacheService],
 })
 export class AlbumModule {}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import {
   ForbiddenException,
   Injectable,
@@ -12,7 +13,6 @@ import { MEMBERSHIP, UserEntity } from '@model/user.entity';
 import type { GetManyUserDto } from './dto/get-user.dto';
 import type { UserSession } from '@core/type/global.type';
 import { VIEW_SESSION_PREFIX } from '@core/utils/const';
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { RedisCacheService } from '@core/service/cache.service';
 
 @Injectable()
@@ -33,6 +33,8 @@ export class UserService {
       await this.cacheService.getKeys(VIEW_SESSION_PREFIX + user.id + ':*')
     ).map((item) => item.split(':').at(-1));
 
+    except.push(user.id);
+
     if (user.membership === MEMBERSHIP.Basic && except.length >= 10)
       throw new ForbiddenException(
         'Upgrade user anda untuk melihat lebih banyak.'
@@ -50,7 +52,7 @@ export class UserService {
         }),
         ...(params.city && { city: params.city }),
         ...(params.province && { province: params.province }),
-        id: Not(In([except])),
+        ...(except.length > 0 && { id: Not(In(except)) }),
       },
       take: 10,
     });

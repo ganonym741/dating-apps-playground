@@ -8,6 +8,5 @@ export class CreateUserDto extends OmitType(UserEntity, [
   'deleted_at',
   'updated_at',
   'updateHassPassword',
-  'toJSON',
   'hashPassword',
 ]) {}

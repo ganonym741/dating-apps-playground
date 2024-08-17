@@ -18,7 +18,7 @@ export class TokenDto {
   token: string;
 
   @ApiProperty({ example: '124000' })
-  token_expired: number;
+  token_expired: Date;
 }
 
 export class LoginResponseDto {
@@ -52,4 +52,3 @@ export class LoginResponseDto {
   @ApiProperty({ example: 'Phone Number' })
   phone_number: string;
 }
-

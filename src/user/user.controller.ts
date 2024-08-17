@@ -78,7 +78,7 @@ export class UserController {
   @Get('/profile')
   async findOne(@Request() req, @Response() res) {
     try {
-      const data = await this.userService.findOne(req.user);
+      const data = await this.userService.findOne(req.user.id);
 
       return res.status(HttpStatusCode.Ok).json(data);
     } catch (err) {

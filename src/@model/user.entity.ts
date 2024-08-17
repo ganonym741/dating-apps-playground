@@ -13,20 +13,18 @@ import { ApiProperty } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 
-import { DefaultEntity } from '@model/default.entity';
-
 export enum GENDER {
-  'Male',
-  'Female',
+  'Male' = 'Male',
+  'Female' = 'Female',
 }
 
 export enum MEMBERSHIP {
-  'Basic',
-  'Premium',
+  'Basic' = 'Basic',
+  'Premium' = 'Premium',
 }
 
 @Entity('user')
-export class UserEntity extends DefaultEntity {
+export class UserEntity {
   @Exclude({ toPlainOnly: true })
   private tempPassword: string;
 
