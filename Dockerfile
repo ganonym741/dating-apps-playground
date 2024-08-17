@@ -7,10 +7,10 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 
 # Install app dependencies
-RUN npm install && npx prisma generate
+RUN npm install
 
 COPY . .
-
+RUN npm run migration:generate && npm run migration:run
 RUN npm run build
 
 FROM node:20-alpine3.18
