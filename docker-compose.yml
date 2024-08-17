@@ -1,0 +1,65 @@
+version: '3.8'
+
+x-api-common:
+  &api-common
+  environment:
+    &api-common-env
+    # API
+    TZ: Asia/Jakarta
+    NODE: development
+    PORT: 3010
+
+    # JWT
+    JWT_SECRET_SALT: 0xd9a74074D0a8f4bF5aeA4aB4E1Ab87efbeafBDed
+    JWT_MAX_AGE: 86000
+    
+    # ONSEC
+    DECRYPT_SECRET_KEY: 0123456789abcdef0123456789abcdef
+    DECRYPT_IV: abcdef9876543210abcdef9876543210
+    JWTR_SECRET: JKeqoi*&sa
+
+    # REDIS
+    REDIS_HOST: localhost
+    REDIS_PORT: 6379
+
+    # DB POSTGRES
+    POSTGRES_HOST: localhost
+    POSTGRES_PORT: 5432
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: pass123
+    POSTGRES_DATABASE: db_myebenefit
+    RUN_MIGRATIONS: false
+
+
+services:
+  api-service:
+    container_name: api-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - '${PORT}:${PORT}'
+    environment:
+      <<: *api-common-env
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    container_name: api-db
+    image: postgres:13
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    restart: on-failure
+
+  redis:
+    container_name: api-redis
+    image: redis:7.2-bookworm
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    restart: on-failure
