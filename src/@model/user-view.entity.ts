@@ -7,7 +7,6 @@ import {
   ManyToOne,
   DeleteDateColumn,
 } from 'typeorm';
-
 import { ApiProperty } from '@nestjs/swagger';
 
 import { UserEntity } from './user.entity';
@@ -38,6 +37,6 @@ export class UserViewEntity {
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @DeleteDateColumn({ type: 'timestamptz' })
   deleted_at: Date;
 }

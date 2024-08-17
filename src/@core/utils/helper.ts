@@ -29,9 +29,10 @@ export const MapResponseSwagger = <
                       type: 'array',
                       items: { $ref: getSchemaPath(dataDto) },
                     },
-                    meta: {
-                      $ref: getSchemaPath('Meta'),
-                    },
+
+                    // meta: {
+                    //   $ref: getSchemaPath('Meta'),
+                    // },
                   },
                 }
               : {

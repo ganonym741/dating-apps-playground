@@ -33,12 +33,12 @@ import { SwaggerMetaResponse } from '@/@core/type/global.type';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({ summary: 'Create new user' })
+  @ApiOperation({ summary: 'Register user' })
   @ApiOkResponse({
     status: 200,
     type: SwaggerMetaResponse,
   })
-  @Post()
+  @Post('/register')
   async create(@Body() createUserDto: CreateUserDto, @Response() res) {
     try {
       const data = await this.userService.create(createUserDto);
@@ -63,7 +63,7 @@ export class UserController {
     @Response() res
   ) {
     try {
-      const data = await this.userService.findAll(query, req.user);
+      const data = await this.userService.findMany(req.user, query);
 
       return res.status(HttpStatusCode.Ok).json(data);
     } catch (err) {

@@ -42,10 +42,11 @@ class ConfigService {
       password: this.getValue('POSTGRES_PASSWORD'),
       database: this.getValue('POSTGRES_DATABASE'),
 
-      entities: ['dist/@model/*.entity{.ts,.js}'],
-      migrationsTableName: 'migration',
-      migrations: ['dist/migration/*.ts'],
+      entities: [__dirname + '/../../**/*.entity.{js,ts}'],
+      migrationsTableName: 'migrations',
+      migrations: ['dist/migrations/*.{ts,js}'],
       synchronize: true,
+      logging: !this.isProduction(),
       ssl: this.isProduction(),
     };
   }
@@ -71,5 +72,5 @@ export const configService = new ConfigService(process.env).ensureValues([
   'JWTR_SECRET',
   'DECRYPT_SECRET_KEY',
   'DECRYPT_IV',
-  'NODE_ENV'
+  'NODE_ENV',
 ]);

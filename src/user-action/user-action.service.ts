@@ -1,7 +1,5 @@
-import {
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+/* eslint-disable @typescript-eslint/consistent-type-imports */
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 
@@ -11,6 +9,8 @@ import { UserViewEntity } from '@/@model/user-view.entity';
 import { AlbumLikeEntity } from '@/@model/album-like.entity';
 import { AlbumEntity } from '@model/album.entity';
 import { MEMBERSHIP } from '@/@model/user.entity';
+import { RedisCacheService } from '@core/service/cache.service';
+import { VIEW_SESSION_PREFIX, VIEW_SESSION_TTL } from '@core/utils/const';
 
 @Injectable()
 export class UserActionService {
@@ -22,7 +22,8 @@ export class UserActionService {
     @InjectRepository(AlbumLikeEntity)
     private albumLikeRepo: Repository<AlbumLikeEntity>,
     @InjectRepository(AlbumEntity)
-    private albumRepo: Repository<AlbumEntity>
+    private albumRepo: Repository<AlbumEntity>,
+    private readonly cacheService: RedisCacheService
   ) {}
 
   async likeUser(req: UserSession, userId: string) {
@@ -70,6 +71,12 @@ export class UserActionService {
       viewed_by_id: req.id,
       created_at: new Date(),
     });
+
+    this.cacheService.save(
+      `${VIEW_SESSION_PREFIX}${userId}:${req.id}`,
+      '',
+      VIEW_SESSION_TTL
+    );
 
     return 'This action adds a new userAction';
   }
@@ -123,7 +130,7 @@ export class UserActionService {
       where: {
         user_id: req.id,
       },
-      relations: { liked_by: true },
+      relations: { liked_by: true, user: false },
     });
 
     return result;
@@ -139,7 +146,7 @@ export class UserActionService {
       where: {
         user_id: req.id,
       },
-      relations: { viewed_by: true },
+      relations: { viewed_by: true, user: false },
     });
 
     return result;
@@ -162,7 +169,7 @@ export class UserActionService {
       where: {
         album_id: albumId,
       },
-      relations: { liked_by: true },
+      relations: { liked_by: true, album: false },
     });
 
     return result;

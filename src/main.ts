@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { Logger } from 'nestjs-pino';
 import { urlencoded } from 'express';
 import helmet from 'helmet';
 import * as setTZ from 'set-tz';
@@ -19,7 +18,6 @@ async function bootstrap() {
 
   app.use(urlencoded({ limit: '100mb', extended: true }));
   app.setGlobalPrefix('api/v1');
-  app.useLogger(app.get(Logger));
   app.useGlobalFilters(new ExceptionMiddleware());
 
   // Configure security header

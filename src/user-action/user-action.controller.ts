@@ -1,10 +1,24 @@
-import { Controller, Post, Param, UseGuards, Request, Response, Put, Get } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import {
+  Controller,
+  Post,
+  Param,
+  UseGuards,
+  Request,
+  Response,
+  Put,
+  Get,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  OmitType,
+} from '@nestjs/swagger';
 import { HttpStatusCode } from 'axios';
 
-import type { UserActionService } from './user-action.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { UserActionService } from './user-action.service';
 import { JwtAuthGuard } from '@/@core/guards';
 import { SwaggerMetaResponse } from '@core/type/global.type';
 import { MapResponseSwagger } from '@core/utils/helper';
@@ -77,7 +91,10 @@ export class UserActionController {
   }
 
   @ApiOperation({ summary: 'Lihat penyuka user' })
-  @MapResponseSwagger(UserLikeEntity, { status: 200, isArray: true })
+  @MapResponseSwagger(OmitType(UserLikeEntity, ['user']), {
+    status: 200,
+    isArray: true,
+  })
   @Get('my-fans')
   async viewUserLike(@Request() req, @Response() res) {
     try {
@@ -90,7 +107,10 @@ export class UserActionController {
   }
 
   @ApiOperation({ summary: 'Lihat fans rahasia user' })
-  @MapResponseSwagger(UserViewEntity, { status: 200, isArray: true })
+  @MapResponseSwagger(OmitType(UserViewEntity, ['user']), {
+    status: 200,
+    isArray: true,
+  })
   @Get('/my-viewer')
   async viewUserView(@Request() req, @Response() res) {
     try {
@@ -103,9 +123,16 @@ export class UserActionController {
   }
 
   @ApiOperation({ summary: 'Lihat penyuka album user' })
-  @MapResponseSwagger(AlbumLikeEntity, { status: 200, isArray: true })
+  @MapResponseSwagger(OmitType(AlbumLikeEntity, ['album']), {
+    status: 200,
+    isArray: true,
+  })
   @Get('/album-like/:id')
-  async viewAlbumLike(@Request() req, @Param('id') id: string, @Response() res) {
+  async viewAlbumLike(
+    @Request() req,
+    @Param('id') id: string,
+    @Response() res
+  ) {
     try {
       const data = await this.userActionService.viewAlbumLike(req.user, id);
 

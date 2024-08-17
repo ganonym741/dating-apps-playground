@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import type { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
-import { UserSeed } from 'migration/seeds/user.seeds';
-import { UserEntity } from '@/@model/user.entity';
+import { UserEntity } from '@model/user.entity';
+import { UserSeed } from '@/migrations/seeds/user.seeds';
 
 @Injectable()
 export class Seeder {
@@ -15,6 +15,7 @@ export class Seeder {
   async createDummyUser() {
     try {
       for (const dataUnit of UserSeed) {
+        dataUnit.password = await bcrypt.hash(dataUnit.password, 10);
         await this.userRepo.insert(dataUnit);
       }
     } catch (error: any) {

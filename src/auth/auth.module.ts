@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import { UserEntity } from '@/@model/user.entity';
 import { USER_SESSION_TTL } from '@/@core/utils/const';
+import { RedisCacheService } from '@/@core/service/cache.service';
 
 @Module({
   imports: [
@@ -20,7 +21,13 @@ import { USER_SESSION_TTL } from '@/@core/utils/const';
       signOptions: { expiresIn: USER_SESSION_TTL },
     }),
   ],
-  providers: [AuthService, JwtService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtService,
+    LocalStrategy,
+    JwtStrategy,
+    RedisCacheService,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

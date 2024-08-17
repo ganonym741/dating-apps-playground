@@ -64,7 +64,7 @@ export class AuthController {
     type: SwaggerMetaResponse,
   })
   @ApiBearerAuth()
-  @Get('/logout')
+  @Post('/logout')
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req, @Response() res) {
     try {

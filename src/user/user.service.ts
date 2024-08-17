@@ -1,16 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, MoreThan, Not, type Repository } from 'typeorm';
 
 import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
-import { UserEntity } from '@model/user.entity';
+import { MEMBERSHIP, UserEntity } from '@model/user.entity';
 import type { GetManyUserDto } from './dto/get-user.dto';
+import type { UserSession } from '@core/type/global.type';
+import { VIEW_SESSION_PREFIX } from '@core/utils/const';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { RedisCacheService } from '@core/service/cache.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
+    @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>,
+    private readonly cacheService: RedisCacheService
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -19,7 +28,16 @@ export class UserService {
     if (result.id) return 'Registrasi user sukses';
   }
 
-  async findAll(params: GetManyUserDto, except: string[] = []) {
+  async findMany(user: UserSession, params: GetManyUserDto) {
+    const except = (
+      await this.cacheService.getKeys(VIEW_SESSION_PREFIX + user.id + ':*')
+    ).map((item) => item.split(':').at(-1));
+
+    if (user.membership === MEMBERSHIP.Basic && except.length >= 10)
+      throw new ForbiddenException(
+        'Upgrade user anda untuk melihat lebih banyak.'
+      );
+
     const result = await this.userRepo.find({
       where: {
         ...(params.gender && { gender: params.gender }),

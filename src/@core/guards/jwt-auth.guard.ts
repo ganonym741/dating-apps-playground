@@ -1,9 +1,7 @@
-import type { CacheStore } from '@nestjs/cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import type { ExecutionContext } from '@nestjs/common';
 import {
   ForbiddenException,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -14,10 +12,11 @@ import { ExtractJwt } from 'passport-jwt';
 
 import { USER_SESSION_TTL, USER_SESSION_PREFIX } from '@core/utils/const';
 import type { UserSession } from '@core/type/global.type';
+import { RedisCacheService } from '../service/cache.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(@Inject(CACHE_MANAGER) private cacheService: CacheStore) {
+  constructor(private readonly cacheService: RedisCacheService) {
     super();
   }
 
@@ -41,11 +40,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
       const decoded = jwt.decode(accessToken);
 
-      const userSession: UserSession = await this.cacheService.get(
-        `${USER_SESSION_PREFIX}${decoded['id']}`
+      const userSession: UserSession = JSON.parse(
+        await this.cacheService.getValue(
+          `${USER_SESSION_PREFIX}${decoded['id']}`
+        )
       );
 
-      if (!userSession || decoded['iat'] != userSession['iat']) {
+      if (!userSession) {
         throw new UnauthorizedException('Token invalid, please relogin.');
       }
 
@@ -60,9 +61,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       request.user = userSession;
 
       // Update expiration on redis
-      this.cacheService.set<UserSession>(
+      this.cacheService.save(
         `${USER_SESSION_PREFIX}${decoded['id']}`,
-        userSession,
+        JSON.stringify(userSession),
         USER_SESSION_TTL
       );
 

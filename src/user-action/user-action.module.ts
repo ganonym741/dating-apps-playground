@@ -6,12 +6,19 @@ import { UserActionController } from './user-action.controller';
 import { UserLikeEntity } from '@/@model/user-like.entity';
 import { UserViewEntity } from '@/@model/user-view.entity';
 import { AlbumLikeEntity } from '@/@model/album-like.entity';
+import { AlbumEntity } from '@/@model/album.entity';
+import { RedisCacheService } from '@core/service/cache.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserLikeEntity, UserViewEntity, AlbumLikeEntity])
+    TypeOrmModule.forFeature([
+      UserLikeEntity,
+      UserViewEntity,
+      AlbumLikeEntity,
+      AlbumEntity,
+    ]),
   ],
   controllers: [UserActionController],
-  providers: [UserActionService],
+  providers: [UserActionService, RedisCacheService],
 })
 export class UserActionModule {}
