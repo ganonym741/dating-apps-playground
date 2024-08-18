@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { urlencoded } from 'express';
 import helmet from 'helmet';
 import * as setTZ from 'set-tz';
+import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from '@/app.module';
 import { ExceptionMiddleware } from '@core/middleware';
@@ -45,6 +46,7 @@ async function bootstrap() {
     SwaggerModule.setup('/docs', app, document);
   }
 
+  app.useGlobalPipes(new ValidationPipe({transform: true}));
   await app.listen(parseInt(process.env.PORT, 10) || 3000);
 }
 

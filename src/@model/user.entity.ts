@@ -12,6 +12,9 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
+import { IsDateString, IsEmail, IsEnum, Matches } from 'class-validator';
+
+import { PASSSWORD_REGEX } from '@core/utils/const';
 
 export enum GENDER {
   'Male' = 'Male',
@@ -37,6 +40,7 @@ export class UserEntity {
 
   @ApiProperty({ example: 'email@example.com' })
   @Column({ unique: true })
+  @IsEmail({}, {message: 'Email tidak valid'})
   email: string;
 
   @ApiProperty({ example: 'Username' })
@@ -45,14 +49,17 @@ export class UserEntity {
 
   @ApiProperty({ example: 'Password' })
   @Column({ select: false })
+  @Matches(PASSSWORD_REGEX, {message: 'Password harus lebih dari 12 karakter, memiliki minimal 1 huruf kapital, 1 simbol, dan 1 angka.'})
   password: string;
 
   @ApiProperty({ example: '12-07-1990' })
   @Column()
+  @IsDateString({},{message: 'Tanggal lahir tidak valid'})
   birth_date: Date;
 
   @ApiProperty({ example: 'M' })
   @Column()
+  @IsEnum(GENDER, {message: 'Jenis Kelamin tidak valid'})
   gender: GENDER;
 
   @ApiProperty({ example: 'address' })
@@ -81,6 +88,7 @@ export class UserEntity {
 
   @ApiProperty({ example: 'basic | premium' })
   @Column()
+  @IsEnum(MEMBERSHIP, {message: 'Membership tidak valid'})
   membership: MEMBERSHIP;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
@@ -105,7 +113,7 @@ export class UserEntity {
   }
 
   @BeforeUpdate()
-  async updateHassPassword() {
+  async updateHassPassword() {    
     if (this.tempPassword !== this.password) {
       this.password = await bcrypt.hash(this.password, 10);
     }

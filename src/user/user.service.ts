@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -23,7 +24,14 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const result = await this.userRepo.save(createUserDto);
+    const user = this.userRepo.create(createUserDto);
+    const result = await this.userRepo.save(user).catch((err: Error) => {
+      throw new BadRequestException(
+        err.message?.includes('duplicate')
+          ? 'Username atau email sudah terdaftar'
+          : err.message
+      );
+    });
 
     if (result.id) return 'Registrasi user sukses';
   }

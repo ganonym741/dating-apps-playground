@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import {
   Controller,
   Get,
@@ -17,16 +18,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { HttpStatusCode } from 'axios';
+import { plainToInstance } from 'class-transformer';
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { UserService } from './user.service';
-import type { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '@core/guards';
 import type { GetManyUserDto } from './dto/get-user.dto';
-import { MapResponseSwagger } from '@/@core/utils/helper';
+import { MapResponseSwagger } from '@core/utils/helper';
 import { UserEntity } from '@model/user.entity';
-import { SwaggerMetaResponse } from '@/@core/type/global.type';
+import { SwaggerMetaResponse } from '@core/type/global.type';
 
 @ApiTags('User Api')
 @Controller('user')
@@ -41,7 +42,8 @@ export class UserController {
   @Post('/register')
   async create(@Body() createUserDto: CreateUserDto, @Response() res) {
     try {
-      const data = await this.userService.create(createUserDto);
+      const payload = plainToInstance(CreateUserDto, createUserDto);
+      const data = await this.userService.create(payload);
 
       return res.status(HttpStatusCode.Created).json({
         status_code: HttpStatusCode.Created,
